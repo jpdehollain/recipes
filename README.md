@@ -1,4 +1,4 @@
-# Kitchen Planner
+# Anano's Recipe App
 
 A small app for planning weekly recipes and building a combined grocery list,
 sorted by store aisle. Built with React + Vite, data stored in Firebase, hosted

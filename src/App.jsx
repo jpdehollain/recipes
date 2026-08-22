@@ -51,7 +51,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1 className="app-title">Kitchen Planner</h1>
+        <h1 className="app-title">Anano's Recipe App</h1>
         <button className="sign-out-link" onClick={() => signOut(auth)}>
           Sign out
         </button>

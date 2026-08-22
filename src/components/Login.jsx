@@ -29,7 +29,7 @@ export default function Login() {
 
   return (
     <div className="login-card">
-      <h1>Kitchen Planner</h1>
+      <h1>Anano's Recipe App</h1>
       <p style={{ color: 'var(--color-ink-light)', fontSize: '0.9rem' }}>
         Sign in with Google to view and plan your household's recipes.
       </p>
