@@ -1,0 +1,399 @@
+:root {
+  --color-bg: #ededE4;
+  --color-surface: #fffdf8;
+  --color-ink: #2b2b26;
+  --color-ink-light: #6b6b5f;
+  --color-line: #d8d6c8;
+  --color-sage: #5c7a5f;
+  --color-sage-light: #e3ead9;
+  --color-tomato: #c1554d;
+  --color-tomato-light: #f5ded9;
+  --color-mustard: #d9a441;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Public Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --radius-card: 6px;
+  --shadow-card: 0 1px 2px rgba(43, 43, 38, 0.08), 0 4px 12px rgba(43, 43, 38, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+}
+
+.app-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sign-out-link {
+  background: none;
+  border: none;
+  color: var(--color-ink-light);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-line);
+  margin-bottom: 24px;
+}
+
+.tab-bar button {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: var(--color-ink-light);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab-bar button.active {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-tomato);
+  font-weight: 600;
+}
+
+/* --- Recipe card --- */
+
+.recipe-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(43, 43, 38, 0.1), 0 8px 20px rgba(43, 43, 38, 0.08);
+}
+
+.recipe-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.recipe-card .meta {
+  color: var(--color-ink-light);
+  font-size: 0.85rem;
+}
+
+.recipe-card.selectable {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: default;
+}
+
+.recipe-card.selectable input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-sage);
+}
+
+/* --- Buttons --- */
+
+.btn {
+  display: inline-block;
+  background: var(--color-ink);
+  color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius-card);
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--color-tomato);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+}
+
+.btn-text {
+  background: none;
+  color: var(--color-ink-light);
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Forms --- */
+
+.field-group {
+  margin-bottom: 16px;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink-light);
+  margin-bottom: 6px;
+}
+
+.field-group input[type="text"],
+.field-group input[type="number"],
+.field-group input[type="email"],
+.field-group input[type="password"],
+.field-group select,
+.field-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+}
+
+.field-group textarea {
+  min-height: 140px;
+  resize: vertical;
+  font-family: var(--font-body);
+}
+
+.ingredient-row {
+  display: grid;
+  grid-template-columns: 1.8fr 0.7fr 0.9fr 0.9fr 1.1fr auto;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .ingredient-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "name name"
+      "qty unittype"
+      "unit cat"
+      "remove remove";
+  }
+  .ingredient-row > *:nth-child(1) { grid-area: name; }
+  .ingredient-row > *:nth-child(2) { grid-area: qty; }
+  .ingredient-row > *:nth-child(3) { grid-area: unittype; }
+  .ingredient-row > *:nth-child(4) { grid-area: unit; }
+  .ingredient-row > *:nth-child(5) { grid-area: cat; }
+  .ingredient-row > *:nth-child(6) { grid-area: remove; justify-self: end; }
+}
+
+.ingredient-row input,
+.ingredient-row select {
+  padding: 8px 10px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  font-size: 0.9rem;
+}
+
+.remove-row {
+  background: none;
+  border: none;
+  color: var(--color-tomato);
+  font-size: 1.1rem;
+  padding: 4px;
+}
+
+/* --- Grocery receipt --- */
+
+.receipt {
+  background: var(--color-surface);
+  font-family: var(--font-mono);
+  padding: 24px 20px 32px;
+  border-radius: 2px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.receipt::before,
+.receipt::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-bg),
+    var(--color-bg) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.receipt::before { top: -5px; }
+.receipt::after { bottom: -5px; }
+
+.receipt-title {
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.receipt-subtitle {
+  text-align: center;
+  color: var(--color-ink-light);
+  font-size: 0.75rem;
+  margin-bottom: 16px;
+}
+
+.receipt-category {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-sage);
+  margin: 16px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--color-line);
+}
+
+.receipt-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  padding: 3px 0;
+}
+
+.receipt-item .name {
+  flex: 1;
+}
+
+.receipt-item .amount {
+  color: var(--color-ink-light);
+  white-space: nowrap;
+}
+
+.receipt-divider {
+  border: none;
+  border-top: 1px dashed var(--color-line);
+  margin: 16px 0;
+}
+
+.receipt-total {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-ink-light);
+  margin-top: 16px;
+}
+
+/* --- Misc --- */
+
+.empty-state {
+  text-align: center;
+  color: var(--color-ink-light);
+  padding: 40px 20px;
+  font-size: 0.95rem;
+}
+
+.recipe-detail .steps {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.recipe-detail .ingredient-list {
+  list-style: none;
+  padding: 0;
+}
+
+.recipe-detail .ingredient-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-line);
+  display: flex;
+  justify-content: space-between;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--color-sage-light);
+  color: var(--color-sage);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-right: 6px;
+}
+
+.error-text {
+  color: var(--color-tomato);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.login-card {
+  max-width: 360px;
+  margin: 80px auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 32px 28px;
+}
+
+.login-card h1 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-top: 0;
+}

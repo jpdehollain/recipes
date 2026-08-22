@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only signed-in users can read or write. Since accounts are created
+    // manually for just your household (see README), this keeps the data
+    // private to the two of you without needing per-document ownership checks.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
