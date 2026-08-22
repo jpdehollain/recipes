@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { auth, db } from './firebase'
+import { ALLOWED_EMAILS } from './allowedEmails'
 import Login from './components/Login'
 import RecipeForm from './components/RecipeForm'
 import RecipeList from './components/RecipeList'
@@ -17,7 +18,14 @@ export default function App() {
   const [selectedRecipe, setSelectedRecipe] = useState(null)
 
   useEffect(() => {
-    return onAuthStateChanged(auth, setUser)
+    return onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser && !ALLOWED_EMAILS.includes(firebaseUser.email)) {
+        signOut(auth)
+        setUser(null)
+        return
+      }
+      setUser(firebaseUser)
+    })
   }, [])
 
   useEffect(() => {

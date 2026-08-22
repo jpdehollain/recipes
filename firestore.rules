@@ -1,11 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only signed-in users can read or write. Since accounts are created
-    // manually for just your household (see README), this keeps the data
-    // private to the two of you without needing per-document ownership checks.
+    // Keep this list in sync with src/allowedEmails.js. This is the rule
+    // that actually protects your data — the check in the app UI is just
+    // there to give a friendlier error message before someone even tries
+    // to read or write.
+    function isAllowed() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'jpdehollain@gmail.com',
+          'anaparismogna@gmail.com'
+        ];
+    }
+
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAllowed();
     }
   }
 }

@@ -7,11 +7,12 @@ on GitHub Pages.
 ## 1. Create a Firebase project
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com) and create a new project (free "Spark" plan is enough).
-2. In the project, go to **Build > Authentication > Get started**, enable the **Email/Password** sign-in method.
-3. Still in Authentication, go to the **Users** tab and manually add two users (one for you, one for your wife) with email + password. There's no public sign-up screen in this app on purpose — you add accounts yourselves.
-4. Go to **Build > Firestore Database > Create database**. Start in **production mode** (the security rules file in this repo will lock it down properly).
-5. Go to **Project settings** (gear icon) > **General** > scroll to "Your apps" > click the **</>** (web) icon to register a new web app. Copy the `firebaseConfig` values shown — you'll need them in step 3 below.
-6. In the Firestore console, go to the **Rules** tab and paste in the contents of `firestore.rules` from this repo, then publish.
+2. In the project, go to **Build > Authentication > Get started**, enable the **Google** sign-in method (you'll need to set a support email, which can be your own).
+3. Go to **Build > Firestore Database > Create database**. Start in **production mode** (the security rules file in this repo will lock it down properly).
+4. Go to **Project settings** (gear icon) > **General** > scroll to "Your apps" > click the **</>** (web) icon to register a new web app. Copy the `firebaseConfig` values shown — you'll need them in step 2 below.
+5. In the Firestore console, go to the **Rules** tab and paste in the contents of `firestore.rules` from this repo, then publish.
+6. Edit `src/allowedEmails.js` and replace the placeholder emails with the actual Google account emails you and your wife will sign in with. Do the same for the matching list inside `firestore.rules` (in the console, not just this repo file) — both need to match or the rules will reject you.
+7. Once you deploy to GitHub Pages (step 3 below), come back to **Authentication > Settings > Authorized domains** in the Firebase console and add your GitHub Pages domain (e.g. `yourname.github.io`), or Google sign-in will be blocked on the live site.
 
 ## 2. Local development
 
@@ -20,13 +21,13 @@ npm install
 cp .env.example .env
 ```
 
-Fill in `.env` with the Firebase config values from step 1.5 above. Then:
+Fill in `.env` with the Firebase config values from step 1.4 above. Then:
 
 ```bash
 npm run dev
 ```
 
-Visit the local URL it prints and sign in with one of the accounts you created.
+Visit the local URL it prints (typically `http://localhost:5173`) and sign in with Google using one of the allowed emails. Note: Google sign-in via popup works fine on `localhost` without any extra "authorized domain" setup — that's only needed once you deploy.
 
 ## 3. Deploy to GitHub Pages
 

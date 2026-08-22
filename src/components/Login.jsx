@@ -1,21 +1,27 @@
 import { useState } from 'react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase'
+import { signInWithPopup, signOut } from 'firebase/auth'
+import { auth, googleProvider } from '../firebase'
+import { ALLOWED_EMAILS } from '../allowedEmails'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  async function handleGoogleSignIn() {
     setError('')
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      const result = await signInWithPopup(auth, googleProvider)
+      const email = result.user.email
+
+      if (!ALLOWED_EMAILS.includes(email)) {
+        await signOut(auth)
+        setError(`${email} isn't authorized to use this app.`)
+      }
     } catch (err) {
-      setError('Could not sign in. Check your email and password and try again.')
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError('Something went wrong signing in. Try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -25,34 +31,12 @@ export default function Login() {
     <div className="login-card">
       <h1>Kitchen Planner</h1>
       <p style={{ color: 'var(--color-ink-light)', fontSize: '0.9rem' }}>
-        Sign in to view and plan your household's recipes.
+        Sign in with Google to view and plan your household's recipes.
       </p>
-      <form onSubmit={handleSubmit}>
-        <div className="field-group">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="field-group">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p className="error-text">{error}</p>}
-        <button className="btn btn-primary" type="submit" disabled={loading}>
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+      {error && <p className="error-text">{error}</p>}
+      <button className="btn btn-primary" onClick={handleGoogleSignIn} disabled={loading}>
+        {loading ? 'Signing in…' : 'Sign in with Google'}
+      </button>
     </div>
   )
 }
