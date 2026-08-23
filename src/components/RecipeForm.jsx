@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, guessCategory } from '../utils/categories'
 import { UNIT_TYPES } from '../utils/unitConversion'
@@ -8,10 +8,20 @@ function emptyIngredient() {
   return { name: '', quantity: '', unitType: 'count', unit: '', category: 'Other' }
 }
 
-export default function RecipeForm({ onSaved }) {
-  const [title, setTitle] = useState('')
-  const [procedure, setProcedure] = useState('')
-  const [ingredients, setIngredients] = useState([emptyIngredient()])
+// Pass `recipe` to edit an existing one; omit it to create a new one.
+// Render with a `key` tied to the recipe id (see App.jsx) so the form
+// remounts with fresh state when switching between add/edit or between
+// different recipes.
+export default function RecipeForm({ recipe, onSaved, onCancel }) {
+  const isEditing = Boolean(recipe)
+
+  const [title, setTitle] = useState(recipe?.title || '')
+  const [procedure, setProcedure] = useState(recipe?.procedure || '')
+  const [ingredients, setIngredients] = useState(
+    recipe?.ingredients?.length
+      ? recipe.ingredients.map((ing) => ({ ...ing, _categoryTouched: true }))
+      : [emptyIngredient()],
+  )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -71,15 +81,23 @@ export default function RecipeForm({ onSaved }) {
 
     setSaving(true)
     try {
-      await addDoc(collection(db, 'recipes'), {
-        title: title.trim(),
-        procedure: procedure.trim(),
-        ingredients: cleanedIngredients,
-        createdAt: serverTimestamp(),
-      })
-      setTitle('')
-      setProcedure('')
-      setIngredients([emptyIngredient()])
+      if (isEditing) {
+        await updateDoc(doc(db, 'recipes', recipe.id), {
+          title: title.trim(),
+          procedure: procedure.trim(),
+          ingredients: cleanedIngredients,
+        })
+      } else {
+        await addDoc(collection(db, 'recipes'), {
+          title: title.trim(),
+          procedure: procedure.trim(),
+          ingredients: cleanedIngredients,
+          createdAt: serverTimestamp(),
+        })
+        setTitle('')
+        setProcedure('')
+        setIngredients([emptyIngredient()])
+      }
       onSaved?.()
     } catch (err) {
       setError('Something went wrong saving the recipe. Try again.')
@@ -90,6 +108,10 @@ export default function RecipeForm({ onSaved }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <h3 style={{ fontFamily: 'var(--font-display)', marginTop: 0 }}>
+        {isEditing ? 'Edit recipe' : 'New recipe'}
+      </h3>
+
       <div className="field-group">
         <label htmlFor="title">Recipe title</label>
         <input
@@ -159,9 +181,16 @@ export default function RecipeForm({ onSaved }) {
 
       {error && <p className="error-text">{error}</p>}
 
-      <button className="btn btn-primary" type="submit" disabled={saving}>
-        {saving ? 'Saving…' : 'Save recipe'}
-      </button>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button className="btn btn-primary" type="submit" disabled={saving}>
+          {saving ? 'Saving…' : isEditing ? 'Update recipe' : 'Save recipe'}
+        </button>
+        {isEditing && (
+          <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   )
 }

@@ -17,6 +17,7 @@ export default function App() {
   const [recipes, setRecipes] = useState([])
   const [activeTab, setActiveTab] = useState('Recipes')
   const [selectedRecipe, setSelectedRecipe] = useState(null)
+  const [editingRecipe, setEditingRecipe] = useState(null)
 
   useEffect(() => {
     return onAuthStateChanged(auth, (firebaseUser) => {
@@ -67,6 +68,7 @@ export default function App() {
             onClick={() => {
               setActiveTab(tab)
               setSelectedRecipe(null)
+              setEditingRecipe(null)
             }}
           >
             {tab}
@@ -80,13 +82,29 @@ export default function App() {
             recipe={selectedRecipe}
             onBack={() => setSelectedRecipe(null)}
             onDeleted={() => setSelectedRecipe(null)}
+            onEdit={(recipe) => {
+              setEditingRecipe(recipe)
+              setSelectedRecipe(null)
+              setActiveTab('New recipe')
+            }}
           />
         ) : (
           <RecipeList recipes={recipes} onSelectRecipe={setSelectedRecipe} />
         ))}
 
       {activeTab === 'New recipe' && (
-        <RecipeForm onSaved={() => setActiveTab('Recipes')} />
+        <RecipeForm
+          key={editingRecipe?.id || 'new'}
+          recipe={editingRecipe}
+          onSaved={() => {
+            setEditingRecipe(null)
+            setActiveTab('Recipes')
+          }}
+          onCancel={() => {
+            setEditingRecipe(null)
+            setActiveTab('Recipes')
+          }}
+        />
       )}
 
       {activeTab === 'Grocery list' && <GroceryListBuilder recipes={recipes} />}
