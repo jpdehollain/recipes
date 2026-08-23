@@ -51,7 +51,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <img src="android-chrome-512x512.png" style="width:80px;height:80px;border-radius:16px;object-fit:cover;opacity:.9">
+        <img src="android-chrome-512x512.png" style="width:80px;height:80px;border-radius:16px;object-fit:cover;opacity:.9"></img>
         <h1 className="app-title">Anano's Recipe App</h1>
         <button className="sign-out-link" onClick={() => signOut(auth)}>
           Sign out
