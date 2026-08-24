@@ -214,7 +214,7 @@ button {
 
 .ingredient-row {
   display: grid;
-  grid-template-columns: 1.8fr 0.7fr 0.9fr 0.9fr 1.1fr auto;
+  grid-template-columns: 1.6fr 0.6fr 0.8fr 0.9fr 1fr auto auto;
   gap: 8px;
   margin-bottom: 8px;
   align-items: center;
@@ -227,14 +227,30 @@ button {
       "name name"
       "qty unittype"
       "unit cat"
-      "remove remove";
+      "pantry remove";
   }
   .ingredient-row > *:nth-child(1) { grid-area: name; }
   .ingredient-row > *:nth-child(2) { grid-area: qty; }
   .ingredient-row > *:nth-child(3) { grid-area: unittype; }
   .ingredient-row > *:nth-child(4) { grid-area: unit; }
   .ingredient-row > *:nth-child(5) { grid-area: cat; }
-  .ingredient-row > *:nth-child(6) { grid-area: remove; justify-self: end; }
+  .ingredient-row > *:nth-child(6) { grid-area: pantry; }
+  .ingredient-row > *:nth-child(7) { grid-area: remove; justify-self: end; }
+}
+
+.pantry-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-ink-light);
+  white-space: nowrap;
+}
+
+.pantry-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-mustard);
 }
 
 .ingredient-row input,
@@ -338,6 +354,22 @@ button {
   font-size: 0.8rem;
   color: var(--color-ink-light);
   margin-top: 16px;
+}
+
+.receipt-category-pantry {
+  color: var(--color-mustard);
+}
+
+.receipt-pantry-note {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-ink-light);
+  margin: -2px 0 8px;
+}
+
+.receipt-item-pantry .name,
+.receipt-item-pantry .amount {
+  color: var(--color-ink-light);
 }
 
 /* --- Misc --- */

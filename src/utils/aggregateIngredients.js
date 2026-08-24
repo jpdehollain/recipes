@@ -2,10 +2,14 @@ import { CATEGORIES } from './categories'
 import { toBaseAmount, humanizeAmount } from './unitConversion'
 
 // Takes an array of recipe objects (each with an `ingredients` array) and
-// returns a list of { category, items: [{ name, amount, recipes }] } groups,
-// ordered by aisle, with items sorted alphabetically inside each group.
+// returns { toBuy, pantry }:
+//   toBuy   - [{ category, items: [{ name, amount, recipes }] }], ordered by
+//             aisle, for ingredients you actually need to shop for.
+//   pantry  - [{ name, amount, recipes }], alphabetical, for bulk staples
+//             you likely already have — a "check before you go" list rather
+//             than a shopping list.
 export function aggregateIngredients(recipes) {
-  const merged = new Map() // key -> { name, unitType, unitLabel, baseAmount, category, recipes: Set }
+  const merged = new Map() // key -> { name, unitType, unitLabel, baseAmount, category, isPantryStaple, recipes: Set }
 
   for (const recipe of recipes) {
     for (const ing of recipe.ingredients || []) {
@@ -31,29 +35,41 @@ export function aggregateIngredients(recipes) {
           unitLabel,
           baseAmount,
           category: ing.category || 'Other',
+          isPantryStaple: Boolean(ing.isPantryStaple),
           recipes: new Set([recipe.title]),
         })
       }
     }
   }
 
-  const grouped = {}
-  for (const category of CATEGORIES) grouped[category] = []
+  const toBuyGrouped = {}
+  for (const category of CATEGORIES) toBuyGrouped[category] = []
+  const pantryItems = []
 
   for (const item of merged.values()) {
     const displayAmount = humanizeAmount(item.baseAmount, item.unitType, item.unitLabel)
-    const category = CATEGORIES.includes(item.category) ? item.category : 'Other'
-    grouped[category].push({
+    const entry = {
       name: item.name,
       amount: displayAmount,
       recipes: Array.from(item.recipes),
-    })
+    }
+
+    if (item.isPantryStaple) {
+      pantryItems.push(entry)
+    } else {
+      const category = CATEGORIES.includes(item.category) ? item.category : 'Other'
+      toBuyGrouped[category].push(entry)
+    }
   }
 
-  return CATEGORIES
+  const toBuy = CATEGORIES
     .map((category) => ({
       category,
-      items: grouped[category].sort((a, b) => a.name.localeCompare(b.name)),
+      items: toBuyGrouped[category].sort((a, b) => a.name.localeCompare(b.name)),
     }))
     .filter((group) => group.items.length > 0)
+
+  pantryItems.sort((a, b) => a.name.localeCompare(b.name))
+
+  return { toBuy, pantry: pantryItems }
 }

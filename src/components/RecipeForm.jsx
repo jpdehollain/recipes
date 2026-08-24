@@ -3,9 +3,10 @@ import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/fi
 import { db } from '../firebase'
 import { CATEGORIES, guessCategory } from '../utils/categories'
 import { UNIT_TYPES } from '../utils/unitConversion'
+import { guessIsPantryStaple } from '../utils/pantryStaples'
 
 function emptyIngredient() {
-  return { name: '', quantity: '', unitType: 'count', unit: '', category: 'Other' }
+  return { name: '', quantity: '', unitType: 'count', unit: '', category: 'Other', isPantryStaple: false }
 }
 
 // Pass `recipe` to edit an existing one; omit it to create a new one.
@@ -19,7 +20,7 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
   const [procedure, setProcedure] = useState(recipe?.procedure || '')
   const [ingredients, setIngredients] = useState(
     recipe?.ingredients?.length
-      ? recipe.ingredients.map((ing) => ({ ...ing, _categoryTouched: true }))
+      ? recipe.ingredients.map((ing) => ({ ...ing, _categoryTouched: true, _pantryTouched: true }))
       : [emptyIngredient()],
   )
   const [saving, setSaving] = useState(false)
@@ -34,6 +35,10 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
         // override a category someone already picked on purpose.
         if (changes.name !== undefined && !ing._categoryTouched) {
           updated.category = guessCategory(changes.name)
+        }
+        // Same idea for the pantry-staple guess.
+        if (changes.name !== undefined && !ing._pantryTouched) {
+          updated.isPantryStaple = guessIsPantryStaple(changes.name)
         }
         // Reset unit when unit type changes so stale units (e.g. "cup" left
         // over after switching to weight) don't linger.
@@ -51,6 +56,12 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
     )
   }
 
+  function togglePantryStaple(index, isPantryStaple) {
+    setIngredients((prev) =>
+      prev.map((ing, i) => (i === index ? { ...ing, isPantryStaple, _pantryTouched: true } : ing)),
+    )
+  }
+
   function addIngredientRow() {
     setIngredients((prev) => [...prev, emptyIngredient()])
   }
@@ -65,7 +76,7 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
 
     const cleanedIngredients = ingredients
       .filter((ing) => ing.name.trim())
-      .map(({ _categoryTouched, ...ing }) => ({
+      .map(({ _categoryTouched, _pantryTouched, ...ing }) => ({
         ...ing,
         quantity: Number(ing.quantity) || 0,
       }))
@@ -154,6 +165,14 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+            <label className="pantry-checkbox">
+              <input
+                type="checkbox"
+                checked={Boolean(ing.isPantryStaple)}
+                onChange={(e) => togglePantryStaple(index, e.target.checked)}
+              />
+              Pantry
+            </label>
             <button
               type="button"
               className="remove-row"

@@ -18,7 +18,7 @@ export default function GroceryListBuilder({ recipes }) {
     [recipes, selectedIds],
   )
 
-  const groups = useMemo(() => aggregateIngredients(selectedRecipes), [selectedRecipes])
+  const { toBuy, pantry } = useMemo(() => aggregateIngredients(selectedRecipes), [selectedRecipes])
 
   if (showReceipt) {
     return (
@@ -26,7 +26,7 @@ export default function GroceryListBuilder({ recipes }) {
         <button className="btn-text" onClick={() => setShowReceipt(false)} style={{ marginBottom: 16 }}>
           ← Edit selection
         </button>
-        <GroceryReceipt groups={groups} recipeTitles={selectedRecipes.map((r) => r.title)} />
+        <GroceryReceipt toBuy={toBuy} pantry={pantry} recipeTitles={selectedRecipes.map((r) => r.title)} />
       </div>
     )
   }
