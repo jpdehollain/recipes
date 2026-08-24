@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { signInWithPopup, signOut } from 'firebase/auth'
 import { auth, googleProvider } from '../firebase'
 import { ALLOWED_EMAILS } from '../allowedEmails'
-import logo from '../../android-chrome-512x512.png'
+import logo from '/recipes/android-chrome-512x512.png'
 
 export default function Login() {
   const [error, setError] = useState('')
