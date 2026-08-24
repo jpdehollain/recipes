@@ -8,7 +8,7 @@ import RecipeForm from './components/RecipeForm'
 import RecipeList from './components/RecipeList'
 import RecipeDetail from './components/RecipeDetail'
 import GroceryListBuilder from './components/GroceryListBuilder'
-import logo from '/recipes/android-chrome-512x512.png'
+import logo from '../public/android-chrome-512x512.png'
 
 const TABS = ['Recipes', 'New recipe', 'Grocery list']
 
