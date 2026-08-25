@@ -1,14 +1,22 @@
 import { useState, useMemo } from 'react'
 import RecipeList from './RecipeList'
+import StaplesChecklist from './StaplesChecklist'
 import GroceryReceipt from './GroceryReceipt'
 import { aggregateIngredients } from '../utils/aggregateIngredients'
 
-export default function GroceryListBuilder({ recipes }) {
+export default function GroceryListBuilder({ recipes, staples }) {
   const [selectedIds, setSelectedIds] = useState([])
+  const [selectedStapleIds, setSelectedStapleIds] = useState([])
   const [showReceipt, setShowReceipt] = useState(false)
 
   function toggleSelect(id) {
     setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
+  }
+
+  function toggleStaple(id) {
+    setSelectedStapleIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     )
   }
@@ -18,7 +26,17 @@ export default function GroceryListBuilder({ recipes }) {
     [recipes, selectedIds],
   )
 
-  const { toBuy, pantry } = useMemo(() => aggregateIngredients(selectedRecipes), [selectedRecipes])
+  const selectedStaples = useMemo(
+    () => staples.filter((s) => selectedStapleIds.includes(s.id)),
+    [staples, selectedStapleIds],
+  )
+
+  const { toBuy, pantry } = useMemo(
+    () => aggregateIngredients(selectedRecipes, selectedStaples),
+    [selectedRecipes, selectedStaples],
+  )
+
+  const totalSelected = selectedIds.length + selectedStapleIds.length
 
   if (showReceipt) {
     return (
@@ -42,13 +60,16 @@ export default function GroceryListBuilder({ recipes }) {
         selectedIds={selectedIds}
         onToggleSelect={toggleSelect}
       />
+
+      <StaplesChecklist staples={staples} selectedIds={selectedStapleIds} onToggle={toggleStaple} />
+
       <button
         className="btn btn-primary"
-        disabled={selectedIds.length === 0}
+        disabled={totalSelected === 0}
         onClick={() => setShowReceipt(true)}
         style={{ marginTop: 16 }}
       >
-        Build grocery list ({selectedIds.length})
+        Build grocery list ({totalSelected})
       </button>
     </div>
   )

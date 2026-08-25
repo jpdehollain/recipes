@@ -1,14 +1,15 @@
 import { CATEGORIES } from './categories'
 import { toBaseAmount, humanizeAmount } from './unitConversion'
 
-// Takes an array of recipe objects (each with an `ingredients` array) and
-// returns { toBuy, pantry }:
+// Takes an array of recipe objects and an array of selected staple items
+// ({ name, category }, no quantity) and returns { toBuy, pantry }:
 //   toBuy   - [{ category, items: [{ name, amount, recipes }] }], ordered by
-//             aisle, for ingredients you actually need to shop for.
+//             aisle. Recipe ingredients carry a summed amount; staples are
+//             included with amount left blank since they're not counted.
 //   pantry  - [{ name, amount, recipes }], alphabetical, for bulk staples
 //             you likely already have — a "check before you go" list rather
 //             than a shopping list.
-export function aggregateIngredients(recipes) {
+export function aggregateIngredients(recipes, staples = []) {
   const merged = new Map() // key -> { name, unitType, unitLabel, baseAmount, category, isPantryStaple, recipes: Set }
 
   for (const recipe of recipes) {
@@ -60,6 +61,11 @@ export function aggregateIngredients(recipes) {
       const category = CATEGORIES.includes(item.category) ? item.category : 'Other'
       toBuyGrouped[category].push(entry)
     }
+  }
+
+  for (const staple of staples) {
+    const category = CATEGORIES.includes(staple.category) ? staple.category : 'Other'
+    toBuyGrouped[category].push({ name: staple.name, amount: null, recipes: [] })
   }
 
   const toBuy = CATEGORIES

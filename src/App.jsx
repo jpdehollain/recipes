@@ -8,13 +8,15 @@ import RecipeForm from './components/RecipeForm'
 import RecipeList from './components/RecipeList'
 import RecipeDetail from './components/RecipeDetail'
 import GroceryListBuilder from './components/GroceryListBuilder'
+import StaplesManager from './components/StaplesManager'
 import logo from '../public/android-chrome-512x512.png'
 
-const TABS = ['Recipes', 'New recipe', 'Grocery list']
+const TABS = ['Recipes', 'New recipe', 'Staples', 'Grocery list']
 
 export default function App() {
   const [user, setUser] = useState(undefined) // undefined = still checking, null = signed out
   const [recipes, setRecipes] = useState([])
+  const [staples, setStaples] = useState([])
   const [activeTab, setActiveTab] = useState('Recipes')
   const [selectedRecipe, setSelectedRecipe] = useState(null)
   const [editingRecipe, setEditingRecipe] = useState(null)
@@ -35,6 +37,14 @@ export default function App() {
     const q = query(collection(db, 'recipes'), orderBy('title'))
     return onSnapshot(q, (snapshot) => {
       setRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
+    })
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    const q = query(collection(db, 'staples'), orderBy('name'))
+    return onSnapshot(q, (snapshot) => {
+      setStaples(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
     })
   }, [user])
 
@@ -107,7 +117,9 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'Grocery list' && <GroceryListBuilder recipes={recipes} />}
+      {activeTab === 'Staples' && <StaplesManager staples={staples} />}
+
+      {activeTab === 'Grocery list' && <GroceryListBuilder recipes={recipes} staples={staples} />}
     </div>
   )
 }

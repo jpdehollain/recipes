@@ -19,7 +19,7 @@ export default function GroceryReceipt({ toBuy, pantry, recipeTitles }) {
           {group.items.map((item) => (
             <div className="receipt-item" key={item.name}>
               <span className="name">{item.name}</span>
-              <span className="amount">{item.amount}</span>
+              {item.amount && <span className="amount">{item.amount}</span>}
             </div>
           ))}
         </div>
