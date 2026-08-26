@@ -6,17 +6,10 @@ import { aggregateIngredients } from '../utils/aggregateIngredients'
 
 export default function GroceryListBuilder({ recipes, staples }) {
   const [selectedIds, setSelectedIds] = useState([])
-  const [selectedStapleIds, setSelectedStapleIds] = useState([])
   const [showReceipt, setShowReceipt] = useState(false)
 
   function toggleSelect(id) {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    )
-  }
-
-  function toggleStaple(id) {
-    setSelectedStapleIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     )
   }
@@ -26,17 +19,16 @@ export default function GroceryListBuilder({ recipes, staples }) {
     [recipes, selectedIds],
   )
 
-  const selectedStaples = useMemo(
-    () => staples.filter((s) => selectedStapleIds.includes(s.id)),
-    [staples, selectedStapleIds],
-  )
+  // Staple selection ("needed") lives on the staple documents themselves
+  // (see StaplesChecklist), not local state, so it isn't reset here.
+  const selectedStaples = useMemo(() => staples.filter((s) => s.needed), [staples])
 
   const { toBuy, pantry } = useMemo(
     () => aggregateIngredients(selectedRecipes, selectedStaples),
     [selectedRecipes, selectedStaples],
   )
 
-  const totalSelected = selectedIds.length + selectedStapleIds.length
+  const totalSelected = selectedIds.length + selectedStaples.length
 
   if (showReceipt) {
     return (
@@ -61,7 +53,7 @@ export default function GroceryListBuilder({ recipes, staples }) {
         onToggleSelect={toggleSelect}
       />
 
-      <StaplesChecklist staples={staples} selectedIds={selectedStapleIds} onToggle={toggleStaple} />
+      <StaplesChecklist staples={staples} />
 
       <button
         className="btn btn-primary"

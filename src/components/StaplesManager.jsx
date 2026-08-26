@@ -27,6 +27,7 @@ export default function StaplesManager({ staples }) {
       await addDoc(collection(db, 'staples'), {
         name: name.trim(),
         category,
+        needed: false,
         createdAt: serverTimestamp(),
       })
       setName('')

@@ -75,7 +75,14 @@ export function aggregateIngredients(recipes, staples = []) {
     }))
     .filter((group) => group.items.length > 0)
 
-  pantryItems.sort((a, b) => a.name.localeCompare(b.name))
+  // If a staple you've ticked as needed shares a name with a pantry-flagged
+  // recipe ingredient, it's already in the "to buy" list above — no need to
+  // also flag it under Check Pantry.
+  const stapleNames = new Set(staples.map((s) => s.name.trim().toLowerCase()))
+  const filteredPantryItems = pantryItems.filter(
+    (item) => !stapleNames.has(item.name.trim().toLowerCase()),
+  )
+  filteredPantryItems.sort((a, b) => a.name.localeCompare(b.name))
 
-  return { toBuy, pantry: pantryItems }
+  return { toBuy, pantry: filteredPantryItems }
 }
