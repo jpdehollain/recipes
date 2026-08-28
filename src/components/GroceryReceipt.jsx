@@ -1,4 +1,4 @@
-export default function GroceryReceipt({ toBuy, pantry, recipeTitles }) {
+export default function GroceryReceipt({ toBuy, recipeTitles }) {
   const buyCount = toBuy.reduce((sum, g) => sum + g.items.length, 0)
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
@@ -27,20 +27,6 @@ export default function GroceryReceipt({ toBuy, pantry, recipeTitles }) {
 
       <hr className="receipt-divider" />
       <div className="receipt-total">{buyCount} item{buyCount === 1 ? '' : 's'} to buy</div>
-
-      {pantry.length > 0 && (
-        <>
-          <hr className="receipt-divider" />
-          <div className="receipt-category receipt-category-pantry">Check Pantry</div>
-          <div className="receipt-pantry-note">Staples you likely already have — top up if running low.</div>
-          {pantry.map((item) => (
-            <div className="receipt-item receipt-item-pantry" key={item.name}>
-              <span className="name">{item.name}</span>
-              <span className="amount">{item.amount} needed</span>
-            </div>
-          ))}
-        </>
-      )}
     </div>
   )
 }

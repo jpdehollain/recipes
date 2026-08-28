@@ -1,17 +1,28 @@
 import { useState, useMemo } from 'react'
 import RecipeList from './RecipeList'
 import StaplesChecklist from './StaplesChecklist'
+import PantryCheck from './PantryCheck'
 import GroceryReceipt from './GroceryReceipt'
-import { aggregateIngredients } from '../utils/aggregateIngredients'
+import { aggregateIngredients, mergeCheckedPantryItems } from '../utils/aggregateIngredients'
 
 export default function GroceryListBuilder({ recipes, staples }) {
   const [selectedIds, setSelectedIds] = useState([])
-  const [showReceipt, setShowReceipt] = useState(false)
+  const [step, setStep] = useState('select') // 'select' | 'pantry' | 'receipt'
+  const [checkedPantryNames, setCheckedPantryNames] = useState(new Set())
 
   function toggleSelect(id) {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     )
+  }
+
+  function togglePantryItem(name) {
+    setCheckedPantryNames((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
   }
 
   const selectedRecipes = useMemo(
@@ -28,15 +39,37 @@ export default function GroceryListBuilder({ recipes, staples }) {
     [selectedRecipes, selectedStaples],
   )
 
+  const finalToBuy = useMemo(
+    () => mergeCheckedPantryItems(toBuy, pantry, checkedPantryNames),
+    [toBuy, pantry, checkedPantryNames],
+  )
+
   const totalSelected = selectedIds.length + selectedStaples.length
 
-  if (showReceipt) {
+  function startBuilding() {
+    setCheckedPantryNames(new Set())
+    setStep(pantry.length > 0 ? 'pantry' : 'receipt')
+  }
+
+  if (step === 'pantry') {
+    return (
+      <PantryCheck
+        items={pantry}
+        checkedNames={checkedPantryNames}
+        onToggle={togglePantryItem}
+        onContinue={() => setStep('receipt')}
+        onBack={() => setStep('select')}
+      />
+    )
+  }
+
+  if (step === 'receipt') {
     return (
       <div>
-        <button className="btn-text" onClick={() => setShowReceipt(false)} style={{ marginBottom: 16 }}>
+        <button className="btn-text" onClick={() => setStep('select')} style={{ marginBottom: 16 }}>
           ← Edit selection
         </button>
-        <GroceryReceipt toBuy={toBuy} pantry={pantry} recipeTitles={selectedRecipes.map((r) => r.title)} />
+        <GroceryReceipt toBuy={finalToBuy} recipeTitles={selectedRecipes.map((r) => r.title)} />
       </div>
     )
   }
@@ -58,7 +91,7 @@ export default function GroceryListBuilder({ recipes, staples }) {
       <button
         className="btn btn-primary"
         disabled={totalSelected === 0}
-        onClick={() => setShowReceipt(true)}
+        onClick={startBuilding}
         style={{ marginTop: 16 }}
       >
         Build grocery list ({totalSelected})

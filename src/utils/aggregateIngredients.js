@@ -49,16 +49,17 @@ export function aggregateIngredients(recipes, staples = []) {
 
   for (const item of merged.values()) {
     const displayAmount = humanizeAmount(item.baseAmount, item.unitType, item.unitLabel)
+    const category = CATEGORIES.includes(item.category) ? item.category : 'Other'
     const entry = {
       name: item.name,
       amount: displayAmount,
       recipes: Array.from(item.recipes),
+      category,
     }
 
     if (item.isPantryStaple) {
       pantryItems.push(entry)
     } else {
-      const category = CATEGORIES.includes(item.category) ? item.category : 'Other'
       toBuyGrouped[category].push(entry)
     }
   }
@@ -85,4 +86,31 @@ export function aggregateIngredients(recipes, staples = []) {
   filteredPantryItems.sort((a, b) => a.name.localeCompare(b.name))
 
   return { toBuy, pantry: filteredPantryItems }
+}
+
+// Takes the `toBuy` groups and pantry items from aggregateIngredients, plus
+// a Set of pantry item names the person has ticked as "need to restock",
+// and folds those ticked items into their aisle category. Unticked pantry
+// items are simply left out, since they're assumed to already be on hand.
+export function mergeCheckedPantryItems(toBuy, pantryItems, checkedNames) {
+  const grouped = {}
+  for (const group of toBuy) {
+    grouped[group.category] = [...group.items]
+  }
+  for (const category of CATEGORIES) {
+    if (!grouped[category]) grouped[category] = []
+  }
+
+  for (const item of pantryItems) {
+    if (checkedNames.has(item.name)) {
+      grouped[item.category].push(item)
+    }
+  }
+
+  return CATEGORIES
+    .map((category) => ({
+      category,
+      items: grouped[category].sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .filter((group) => group.items.length > 0)
 }

@@ -356,22 +356,6 @@ button {
   margin-top: 16px;
 }
 
-.receipt-category-pantry {
-  color: var(--color-mustard);
-}
-
-.receipt-pantry-note {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--color-ink-light);
-  margin: -2px 0 8px;
-}
-
-.receipt-item-pantry .name,
-.receipt-item-pantry .amount {
-  color: var(--color-ink-light);
-}
-
 /* --- Misc --- */
 
 .empty-state {
