@@ -58,6 +58,7 @@ button {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  gap: 12px;
 }
 
 .app-title {
@@ -328,10 +329,18 @@ button {
 
 .receipt-item {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   font-size: 0.9rem;
-  padding: 3px 0;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+.receipt-item input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  accent-color: var(--color-sage);
 }
 
 .receipt-item .name {
@@ -341,6 +350,13 @@ button {
 .receipt-item .amount {
   color: var(--color-ink-light);
   white-space: nowrap;
+}
+
+.receipt-item.checked .name,
+.receipt-item.checked .amount {
+  text-decoration: line-through;
+  color: var(--color-ink-light);
+  opacity: 0.6;
 }
 
 .receipt-divider {
@@ -437,4 +453,29 @@ button {
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
   font-size: 0.85rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 43, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  max-width: 360px;
+  text-align: center;
+}
+
+.modal-card p {
+  font-size: 1.05rem;
+  margin: 0;
 }
