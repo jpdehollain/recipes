@@ -106,6 +106,7 @@ export default function App() {
         <RecipeForm
           key={editingRecipe?.id || 'new'}
           recipe={editingRecipe}
+          recipes={recipes}
           onSaved={() => {
             setEditingRecipe(null)
             setActiveTab('Recipes')

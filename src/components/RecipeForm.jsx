@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, guessCategory } from '../utils/categories'
@@ -9,12 +9,16 @@ function emptyIngredient() {
   return { name: '', quantity: '', unitType: 'count', unit: '', category: 'Other', isPantryStaple: false }
 }
 
+const MAX_SUGGESTIONS = 6
+
 // Pass `recipe` to edit an existing one; omit it to create a new one.
+// Pass `recipes` (all existing recipes) so ingredient names already used
+// elsewhere can be suggested, autofilling type/unit/category.
 // Render with a `key` tied to the recipe id (see App.jsx) so the form
 // remounts with fresh state when switching between add/edit or between
 // different recipes.
-export default function RecipeForm({ recipe, onSaved, onCancel }) {
-  const isEditing = Boolean(recipe)
+export default function RecipeForm({ recipe, recipes, onSaved, onCancel }) {
+  const isEditing = Boolean(recipe?.id)
 
   const [title, setTitle] = useState(recipe?.title || '')
   const [procedure, setProcedure] = useState(recipe?.procedure || '')
@@ -25,6 +29,54 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [suggestionRow, setSuggestionRow] = useState(null)
+
+  // One entry per distinct ingredient name ever used, keyed lowercase, so
+  // typing a known name can offer to reuse its type/unit/category.
+  const ingredientHistory = useMemo(() => {
+    const map = new Map()
+    for (const r of recipes || []) {
+      for (const ing of r.ingredients || []) {
+        if (!ing.name) continue
+        map.set(ing.name.toLowerCase(), {
+          name: ing.name,
+          unitType: ing.unitType,
+          unit: ing.unit,
+          category: ing.category,
+          isPantryStaple: ing.isPantryStaple,
+        })
+      }
+    }
+    return map
+  }, [recipes])
+
+  function getSuggestions(query) {
+    const q = query.trim().toLowerCase()
+    if (!q) return []
+    return Array.from(ingredientHistory.values())
+      .filter((item) => item.name.toLowerCase().includes(q))
+      .slice(0, MAX_SUGGESTIONS)
+  }
+
+  function applySuggestion(index, suggestion) {
+    setIngredients((prev) =>
+      prev.map((ing, i) =>
+        i === index
+          ? {
+              ...ing,
+              name: suggestion.name,
+              unitType: suggestion.unitType,
+              unit: suggestion.unit,
+              category: suggestion.category,
+              isPantryStaple: suggestion.isPantryStaple,
+              _categoryTouched: true,
+              _pantryTouched: true,
+            }
+          : ing,
+      ),
+    )
+    setSuggestionRow(null)
+  }
 
   function updateIngredient(index, changes) {
     setIngredients((prev) =>
@@ -138,12 +190,30 @@ export default function RecipeForm({ recipe, onSaved, onCancel }) {
         <label>Ingredients</label>
         {ingredients.map((ing, index) => (
           <div className="ingredient-row" key={index}>
-            <input
-              type="text"
-              placeholder="Ingredient name"
-              value={ing.name}
-              onChange={(e) => updateIngredient(index, { name: e.target.value })}
-            />
+            <div className="ingredient-name-wrap">
+              <input
+                type="text"
+                placeholder="Ingredient name"
+                value={ing.name}
+                onChange={(e) => updateIngredient(index, { name: e.target.value })}
+                onFocus={() => setSuggestionRow(index)}
+                onBlur={() => setSuggestionRow(null)}
+                autoComplete="off"
+              />
+              {suggestionRow === index && getSuggestions(ing.name).length > 0 && (
+                <ul className="ingredient-suggestions">
+                  {getSuggestions(ing.name).map((s) => (
+                    <li
+                      key={s.name}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applySuggestion(index, s)}
+                    >
+                      {s.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <input
               type="number"
               min="0"
