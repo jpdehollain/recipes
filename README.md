@@ -34,7 +34,7 @@ Visit the local URL it prints (typically `http://localhost:5173`) and sign in wi
 1. Create a new GitHub repo and push this project to it.
 2. In `vite.config.js`, set `base` to `/your-repo-name/` (matching your actual repo name).
 3. In your GitHub repo, go to **Settings > Pages**, and under "Build and deployment", set **Source** to **GitHub Actions**.
-4. Go to **Settings > Secrets and variables > Actions**, and add each of these as a repository secret (values from step 1.5):
+4. Go to **Settings > Secrets and variables > Actions**, and add each of these as a repository secret (values from step 1.4):
    - `VITE_FIREBASE_API_KEY`
    - `VITE_FIREBASE_AUTH_DOMAIN`
    - `VITE_FIREBASE_PROJECT_ID`
