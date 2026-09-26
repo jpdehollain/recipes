@@ -126,23 +126,38 @@ export default function RecipeForm({ recipe, recipes, onSaved, onCancel }) {
     e.preventDefault()
     setError('')
 
-    const cleanedIngredients = ingredients
-      .filter((ing) => ing.name.trim())
-      .map(({ _categoryTouched, _pantryTouched, ...ing }) => ({
-        ...ing,
-        name: ing.name.trim(),
-        unit: typeof ing.unit === 'string' ? ing.unit.trim() : ing.unit,
-        quantity: Number(ing.quantity) || 0,
-      }))
-
     if (!title.trim()) {
       setError('Give the recipe a title.')
       return
     }
-    if (cleanedIngredients.length === 0) {
+
+    const namedIngredients = ingredients.filter((ing) => ing.name.trim())
+
+    if (namedIngredients.length === 0) {
       setError('Add at least one ingredient.')
       return
     }
+
+    for (const ing of namedIngredients) {
+      const ingName = ing.name.trim()
+      if (!ing.quantity || Number(ing.quantity) <= 0) {
+        setError(`"${ingName}" needs a quantity greater than 0.`)
+        return
+      }
+      if (ing.unitType !== 'count' && !ing.unit) {
+        setError(`"${ingName}" needs a unit selected.`)
+        return
+      }
+    }
+
+    const cleanedIngredients = namedIngredients.map(({ _categoryTouched, _pantryTouched, ...ing }) => ({
+      name: ing.name.trim(),
+      quantity: Number(ing.quantity) || 0,
+      unitType: ing.unitType || 'count',
+      unit: typeof ing.unit === 'string' ? ing.unit.trim() : '',
+      category: ing.category || 'Other',
+      isPantryStaple: Boolean(ing.isPantryStaple),
+    }))
 
     setSaving(true)
     try {
