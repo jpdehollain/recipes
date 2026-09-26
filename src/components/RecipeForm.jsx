@@ -130,6 +130,8 @@ export default function RecipeForm({ recipe, recipes, onSaved, onCancel }) {
       .filter((ing) => ing.name.trim())
       .map(({ _categoryTouched, _pantryTouched, ...ing }) => ({
         ...ing,
+        name: ing.name.trim(),
+        unit: typeof ing.unit === 'string' ? ing.unit.trim() : ing.unit,
         quantity: Number(ing.quantity) || 0,
       }))
 
